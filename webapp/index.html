@@ -19,10 +19,8 @@
 
     <script type="text/javascript">
         (function() {
-            if (typeof Telegram !== "undefined" && Telegram.WebApp) {
-                Telegram.WebApp.ready();
-                console.log("Telegram Web App is ready");
-            }
+            Telegram.WebApp.ready();
+
             const originalFetch = window.fetch;
 
             window.fetch = function(...args) {
