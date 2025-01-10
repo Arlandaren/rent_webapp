@@ -9,41 +9,29 @@
 <body>
     <div id="rc-bookings-widget-root"></div>
 
-    <button id="bookButton">Забронировать</button>
-
     <script src="https://realtycalendar.ru/webpack/application.js?_t=af45640fa4f13e8e73ea"></script>
     <script type="text/javascript">
         RC_BOOKINGS_WIDGET.init('a568eff3bc1bd3f4f78dbdd82aaf9d12');
+    </script>
 
-        document.getElementById('bookButton').addEventListener('click', function() {
-            // Assuming you have the necessary parameters
-            const token = 'your_token_here';
-            const begin_date = new Date();
-            const end_date = new Date(begin_date.getTime() + 7 *24* 60 *60* 1000);  // 7 days later
-            const guests = 2;
-
-            // Call the list or getPrice function
-            list(token, begin_date, end_date, guests)
-                .then(response => {
-                    console.log('Booking successful', response);
-                    // Handle successful response
-                })
-                .catch(error => {
-                    console.error('Error with booking:', error);
-                    // Handle error
-                });
-        });
-
-        // Example function call for list
-        function list(token, begin_date, end_date, guests) {
-            const params = `humans=${encodeURIComponent(guests)}&begin_date=${begin_date.toISOString()}&end_date=${end_date.toISOString()}`;
-            return fetch(RC_BOOKINGS_WIDGET.domain() + '/widgets/bookings/search/' + token + '.json?' + params, {
-                mode: 'cors'
-            })
-            .then(response => response.json())
-            .then(data => data)
-            .catch(error => { throw error });
-        }
+    <script type="text/javascript">
+        (function() {
+            const originalFetch = window.fetch;
+            window.fetch = function(...args) {
+                return originalFetch.apply(this, args)
+                    .then(response => {
+                        // Клонируем ответ, так как его можно читать только один раз
+                        const clonedResponse = response.clone();
+                        // Читаем тело ответа
+                        clonedResponse.json().then(data => {
+                            console.log('Intercepted response:', data);
+                        }).catch(error => {
+                            console.error('Error parsing response:', error);
+                        });
+                        return response;
+                    });
+            };
+        })();
     </script>
 </body>
 </html>
