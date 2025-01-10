@@ -17,14 +17,16 @@
     <script type="text/javascript">
         (function() {
             const originalFetch = window.fetch;
+
             window.fetch = function(...args) {
                 return originalFetch.apply(this, args)
                     .then(response => {
-                        // Клонируем ответ, так как его можно читать только один раз
                         const clonedResponse = response.clone();
-                        // Читаем тело ответа
                         clonedResponse.json().then(data => {
-                            console.log('Intercepted response:', data);
+                            // Проверяем условия для определения целевого ответа
+                            if (data.id && data.begin_date && data.end_date && data.realty_id && data.user_id) {
+                                console.log('Target response:', data);
+                            }
                         }).catch(error => {
                             console.error('Error parsing response:', error);
                         });
@@ -32,6 +34,7 @@
                     });
             };
         })();
+
     </script>
 </body>
 </html>
