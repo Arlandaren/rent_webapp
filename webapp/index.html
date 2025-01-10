@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Бронирование</title>
     <link rel="stylesheet" href="https://realtycalendar.ru/webpack/styles.css">
-    <script async src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
     <div id="rc-bookings-widget-root"></div>
@@ -17,9 +16,12 @@
         RC_BOOKINGS_WIDGET.init('a568eff3bc1bd3f4f78dbdd82aaf9d12');
     </script>
 
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script type="text/javascript">
+        Telegram.WebApp.ready();
         (function() {
-            Telegram.WebApp.ready();
+
 
             const originalFetch = window.fetch;
 
