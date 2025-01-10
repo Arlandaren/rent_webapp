@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Бронирование</title>
     <link rel="stylesheet" href="https://realtycalendar.ru/webpack/styles.css">
+    <script async src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
     <div id="rc-bookings-widget-root"></div>
@@ -23,9 +24,14 @@
                     .then(response => {
                         const clonedResponse = response.clone();
                         clonedResponse.json().then(data => {
-                            // Проверяем условия для определения целевого ответа
                             if (data.id && data.begin_date && data.end_date && data.realty_id && data.user_id) {
                                 console.log('Target response:', data);
+
+                                // Передаем данные боту
+                                Telegram.WebApp.sendData(JSON.stringify(data));
+
+                                // Закрываем мини-приложение
+                                Telegram.WebApp.close();
                             }
                         }).catch(error => {
                             console.error('Error parsing response:', error);
@@ -34,7 +40,6 @@
                     });
             };
         })();
-
     </script>
 </body>
 </html>
