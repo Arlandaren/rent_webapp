@@ -17,8 +17,14 @@
             },
             onError: function(error) {
                 console.error('Ошибка при загрузке виджета: ', error);
+            },
+            onBookingSuccess: function(response) {
+                console.log('Бронирование успешно:', response);
+                // Здесь вы можете обработать данные ответа
             }
         });
+    </script>
+    
     </script>
 </body>
 </html>
