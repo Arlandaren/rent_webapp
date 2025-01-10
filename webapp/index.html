@@ -3,38 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Модуль бронирования</title>
+    <title>Бронирование</title>
     <link rel="stylesheet" href="https://realtycalendar.ru/webpack/styles.css">
-    <style>
-        /*Добавьте свой собственный стиль здесь для лучшей интеграции*/
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        #rc-small-bookings-widget-root {
-            width: 100%;
-            max-width: 600px;
-        }
-    </style>
 </head>
 <body>
-    <div id="rc-small-bookings-widget-root"></div>
+    <div id="rc-bookings-widget-root"></div>
 
-    <script src="https://realtycalendar.ru/webpack/search.js?_t=af45640fa4f13e8e73ea"></script>
+    <script src="https://realtycalendar.ru/webpack/application.js?_t=af45640fa4f13e8e73ea"></script>
     <script type="text/javascript">
-        RC_SMALL_BOOKINGS_WIDGET.init('a568eff3bc1bd3f4f78dbdd82aaf9d12', {
+        RC_BOOKINGS_WIDGET.init('a568eff3bc1bd3f4f78dbdd82aaf9d12', {
             onReady: function() {
-                console.log('Малый виджет бронирования загружен');
+                console.log('Виджет бронирования загружен');
             },
             onError: function(error) {
-                console.error('Ошибка при загрузке малого виджета: ', error);
+                console.error('Ошибка при загрузке виджета: ', error);
             }
         });
     </script>
