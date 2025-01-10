@@ -9,6 +9,8 @@
 </head>
 <body>
     <div id="rc-bookings-widget-root"></div>
+    <!-- Элемент для отображения данных -->
+    <div id="response-label" style="margin-top: 20px; font-size: 16px;"></div>
 
     <script src="https://realtycalendar.ru/webpack/application.js?_t=af45640fa4f13e8e73ea"></script>
     <script type="text/javascript">
@@ -25,13 +27,14 @@
                         const clonedResponse = response.clone();
                         clonedResponse.json().then(data => {
                             if (data.id && data.begin_date && data.end_date && data.realty_id && data.user_id) {
-                                console.log('Target response:', data);
+                                const responseLabel = document.getElementById('response-label');
+                                const responseData = `ID: ${data.id}, Begin Date: ${data.begin_date}, End Date: ${data.end_date}, Realty ID: ${data.realty_id}, User ID: ${data.client_id}`;
+
+                                // Отображаем данные в элементе
+                                responseLabel.textContent = responseData;
 
                                 // Передаем данные боту
                                 Telegram.WebApp.sendData(JSON.stringify(data));
-
-                                // Закрываем мини-приложение
-                                // Telegram.WebApp.close();
                             }
                         }).catch(error => {
                             console.error('Error parsing response:', error);
