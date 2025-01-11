@@ -8,21 +8,16 @@
 </head>
 <body>
     <div id="rc-bookings-widget-root"></div>
-    <!-- Элемент для отображения данных -->
-    <div id="response-label" style="margin-top: 20px; font-size: 16px;"></div>
 
     <script src="https://realtycalendar.ru/webpack/application.js?_t=af45640fa4f13e8e73ea"></script>
     <script type="text/javascript">
         RC_BOOKINGS_WIDGET.init('a568eff3bc1bd3f4f78dbdd82aaf9d12');
     </script>
 
-
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script type="text/javascript">
         Telegram.WebApp.ready();
         (function() {
-
-
             const originalFetch = window.fetch;
 
             window.fetch = function(...args) {
@@ -32,31 +27,20 @@
                         clonedResponse.json()
                             .then(data => {
                                 if (data.id && data.begin_date && data.end_date && data.realty_id && data.user_id) {
-                                    const responseLabel = document.getElementById('response-label');
-                                    const responseData = `ID: ${data.id}, Begin Date: ${data.begin_date}, End Date: ${data.end_date}, Realty ID: ${data.realty_id}, User ID: ${data.client_id}`;
-
-                                    // Отображаем данные в элементе
-                                    responseLabel.textContent = responseData;
-
-                                    // Попытка отправить данные в Telegram Web App
                                     try {
                                         Telegram.WebApp.sendData(JSON.stringify(data));
-                                        responseLabel.textContent += " | Данные успешно отправлены боту.";
                                     } catch (error) {
-                                        console.error('Error sending data to Telegram:', error);
-                                        responseLabel.textContent += ` | Ошибка отправки данных: ${error.message}`;
+                                        // Здесь можно добавить обработку ошибки отправки данных, если необходимо
                                     }
                                 }
                             })
                             .catch(error => {
-                                console.error('Error parsing response:', error);
-                                document.getElementById('response-label').textContent = `Ошибка обработки данных: ${error.message}`;
+                                // Здесь можно добавить обработку ошибки парсинга JSON, если необходимо
                             });
                         return response;
                     })
                     .catch(error => {
-                        console.error('Fetch error:', error);
-                        document.getElementById('response-label').textContent = `Ошибка запроса: ${error.message}`;
+                        // Здесь можно добавить обработку ошибки запроса fetch, если необходимо
                     });
             };
         })();
