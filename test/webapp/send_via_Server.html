@@ -10,18 +10,16 @@
     <button onclick="sendData()">Отправить данные на сервер</button>
 
     <script>
+        import { retrieveLaunchParams } from '@telegram-apps/sdk';
         async function sendData() {
             const data = { message: "Привет, сервер!" };
 
-            const response = await fetch('https://rent-bot-ivtr.onrender.com/webapp-data', {
+            const { initDataRaw } = retrieveLaunchParams();
+            const response = fetch('https://example.com/api', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    initData: Telegram.WebApp.initData,
-                    data: data,
-                }),
+                    Authorization: `tma ${initDataRaw}`
+            },
             });
 
             const result = await response.json();
