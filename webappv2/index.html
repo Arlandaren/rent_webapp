@@ -1,4 +1,4 @@
-<div id="hr-widget"></div>
+<!-- <div id="hr-widget"></div>
 <script type="module" src="https://homereserve.ru/widget.js"></script>
 <script type="module">
     window.homereserve.initWidgetSearch({"token": "AAEKnw"});
@@ -58,4 +58,81 @@
         // Для других запросов выполняем оригинальный fetch
         return originalFetch(...args);
     };
+</script> -->
+<div id="hr-widget"></div>
+<script type="module" src="https://homereserve.ru/widget.js"></script>
+<script type="module">
+    window.homereserve.initWidgetSearch({"token": "AAEKnw"});
+</script>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<!-- Контейнер для логов -->
+<div id="log-container" style="padding: 10px; background-color: #f5f5f5; margin-top: 10px; border-radius: 5px; max-height: 200px; overflow-y: auto; font-family: monospace;"></div>
+
+<script>
+    Telegram.WebApp.ready();
+
+    // Функция для вывода логов в контейнер
+    function logToWidget(message) {
+        const logContainer = document.getElementById('log-container');
+        const logEntry = document.createElement('div');
+        logEntry.textContent = message;
+        logContainer.appendChild(logEntry);
+
+        // Автоматическая прокрутка вниз, чтобы видеть последние логи
+        logContainer.scrollTop = logContainer.scrollHeight;
+    }
+
+    const originalFetch = window.fetch;
+
+    window.fetch = async (...args) => {
+        const url = args[0];
+        logToWidget(`Intercepted fetch request to: ${url}`);
+
+        if (url.includes('/confirm')) {
+            logToWidget(`Request to /confirm detected: ${JSON.stringify(args)}`);
+
+            // Извлекаем тело запроса
+            const requestPayload = args[1]?.body;
+            let payloadData = null;
+            if (requestPayload) {
+                try {
+                    // Если тело запроса — строка, используем его напрямую
+                    payloadData = typeof requestPayload === 'string' ? requestPayload : JSON.stringify(requestPayload);
+                    logToWidget(`Payload for /confirm: ${payloadData}`);
+                } catch (error) {
+                    logToWidget(`Error reading request payload: ${error}`);
+                }
+            }
+
+            // Выполняем оригинальный запрос и анализируем ответ
+            const response = await originalFetch(...args);
+
+            if (response.ok) { // Проверка на статус-код 200
+                logToWidget(`Request to /confirm succeeded: ${response.status}`);
+
+                // Формируем объект перехваченного запроса
+                const interceptedRequest = {
+                    url,
+                    method: args[1]?.method || 'GET',
+                    headers: args[1]?.headers,
+                    payload: payloadData,
+                };
+
+                try {
+                    logToWidget(`Sending intercepted request to Telegram: ${JSON.stringify(interceptedRequest)}`);
+                    Telegram.WebApp.sendData(JSON.stringify(interceptedRequest));
+                } catch (error) {
+                    logToWidget(`Error sending data to Telegram: ${error}`);
+                }
+            } else {
+                logToWidget(`Request to /confirm failed. Status: ${response.status}`);
+            }
+
+            return response; // Возвращаем ответ для дальнейшего использования
+        }
+
+        // Для других запросов выполняем оригинальный fetch
+        return originalFetch(...args);
+    };
 </script>
