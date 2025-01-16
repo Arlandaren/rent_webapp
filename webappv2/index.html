@@ -1,15 +1,25 @@
-<div id="log-container" style="padding: 10px; background-color: #f5f5f5; margin-top: 10px; border-radius: 5px; max-height: 200px; overflow-y: auto; font-family: monospace;"></div>
+<!-- Контейнер для логов, который будет поверх виджета -->
+<div id="log-container" style="position: absolute; top: 10px; left: 10px; z-index: 9999; background-color: rgba(0, 0, 0, 0.7); color: white; padding: 10px; border-radius: 5px; max-height: 200px; width: 300px; overflow-y: auto; font-family: monospace; font-size: 12px;"></div>
 
+<!-- Виджет -->
 <div id="hr-widget"></div>
-<script type="module" src="https://homereserve.ru/widget.js"></script>
+
+<!-- Скрипт для инициализации виджета -->
 <script type="module">
-    window.homereserve.initWidgetSearch({"token": "AAEKnw"});
+    try {
+        console.log('Loading the widget...');
+        window.homereserve.initWidgetSearch({"token": "AAEKnw"});
+        console.log('Widget initialized successfully.');
+    } catch (error) {
+        console.error('Error initializing widget:', error);
+        logToWidget('Error initializing widget: ' + error.message);
+    }
 </script>
+
+<!-- Подключение библиотеки Telegram WebApp -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <script>
-    Telegram.WebApp.ready();
-
     // Функция для вывода логов в контейнер
     function logToWidget(message) {
         const logContainer = document.getElementById('log-container');
@@ -20,6 +30,8 @@
         // Автоматическая прокрутка вниз, чтобы видеть последние логи
         logContainer.scrollTop = logContainer.scrollHeight;
     }
+
+    Telegram.WebApp.ready();
 
     const originalFetch = window.fetch;
 
@@ -73,4 +85,15 @@
         // Для других запросов выполняем оригинальный fetch
         return originalFetch(...args);
     };
+</script>
+
+<script type="module" src="https://homereserve.ru/widget.js"></script>
+<script type="module">
+    // Инициализация виджета повторно
+    try {
+        window.homereserve.initWidgetSearch({"token": "AAEKnw"});
+    } catch (error) {
+        console.error('Error initializing widget after the second attempt:', error);
+        logToWidget('Error initializing widget after the second attempt: ' + error.message);
+    }
 </script>
