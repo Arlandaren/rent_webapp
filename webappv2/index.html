@@ -1,7 +1,5 @@
-<!-- Виджет -->
 <div id="hr-widget"></div>
 
-<!-- Подключение библиотеки Telegram WebApp -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <script>
@@ -44,17 +42,15 @@
                 }
             }
 
-            return response; // Возвращаем ответ для дальнейшего использования
+            return response;
         }
 
-        // Для других запросов выполняем оригинальный fetch
         return originalFetch(...args);
     };
 </script>
 
 <script type="module" src="https://homereserve.ru/widget.js"></script>
 <script type="module">
-    // Инициализация виджета повторно
     try {
         window.homereserve.initWidgetSearch({"token": "AAEKnw"});
     } catch (error) {
