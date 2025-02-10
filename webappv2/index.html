@@ -1,64 +1,43 @@
-<div id="hr-widget"></div>
-
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-<script>
-    Telegram.WebApp.ready();
-
-    const originalFetch = window.fetch;
-
-    window.fetch = async (...args) => {
-        const url = args[0];
-
-        if (url.includes('/confirm')) {
-            // Извлекаем тело запроса
-            const requestPayload = args[1]?.body;
-            let payloadData = null;
-            if (requestPayload) {
-                try {
-                    // Если тело запроса — строка, используем его напрямую
-                    payloadData = typeof requestPayload === 'string' ? requestPayload : JSON.stringify(requestPayload);
-                } catch (error) {
-                    console.error('Error reading request payload:', error);
-                }
-            }
-
-            // Извлекаем информацию из элемента
-            const priceElement = document.querySelector('#hr-modal > div.hr-modal > div > div.basket-page__container > div.basket-page__content > div.form-container > div.form > div.form__price-block.price-block > div:nth-child(2) > div.price-block__right');
-            const priceInfo = priceElement ? priceElement.innerText : 'Информация не найдена';
-
-            // Добавляем информацию в отправку данных в Telegram
-            const response = await originalFetch(...args);
-
-            if (response.ok) { // Проверка на статус-код 200
-                // Формируем объект перехваченного запроса
-                const interceptedRequest = {
-                    url,
-                    method: args[1]?.method || 'GET',
-                    headers: args[1]?.headers,
-                    payload: payloadData,
-                    priceInfo: priceInfo,
-                };
-
-                try {
-                    Telegram.WebApp.sendData(JSON.stringify(interceptedRequest));
-                } catch (error) {
-                    console.error('Error sending data to Telegram:', error);
-                }
-            }
-
-            return response;
-        }
-
-        return originalFetch(...args);
-    };
-</script>
-
-<script type="module" src="https://homereserve.ru/widget.js"></script>
-<script type="module">
-    try {
-        window.homereserve.initWidgetSearch({"token": "AAEKnw"});
-    } catch (error) {
-        console.error('Error initializing widget after the second attempt:', error);
-    }
-</script>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Бронирование недвижимости в Чите — HomeReserve</title>
+    <!-- Мета-теги для SEO -->
+    <meta name="description" content="Бронируйте недвижимость в Чите с дополнительными возможностями и скидками. Перейдите в наш Telegram бот для лучших предложений!">
+    <meta name="keywords" content="бронирование, недвижимость, Чита, аренда, скидки, Telegram бот">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Open Graph данные для социальных сетей -->
+    <meta property="og:title" content="Бронирование недвижимости в Чите — HomeReserve">
+    <meta property="og:description" content="Бронируйте недвижимость в Чите с дополнительными возможностями и скидками через наш Telegram бот!">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://example.com/">
+    <meta property="og:image" content="https://example.com/images/preview.jpg">
+    <!-- Twitter Card данные -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Бронирование недвижимости в Чите — HomeReserve">
+    <meta name="twitter:description" content="Бронируйте недвижимость в Чите с дополнительными возможностями и скидками через наш Telegram бот!">
+    <meta name="twitter:image" content="https://example.com/images/preview.jpg">
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <div class="wrapper">    
+        <main class="content">
+            <div id="hr-widget"></div>
+            <img id="arrow" src="arrow.png" alt="arrow pointing to widget">
+            <script type="module" src="https://homereserve.ru/widget.js"></script>
+            <script type="module">
+                window.homereserve.initWidgetSearch({"token":"AAEKnw"})
+            </script>
+        </main>
+        <footer class="footer">
+            <p>По всем вопросам звоните по телефону: +7 (914) 120-44-44</p>
+            <a href="tel:+79141204444" class="telegram-button" target="_blank" rel="noopener noreferrer">
+                Позвонить!
+            </a>
+        </footer>
+    </div>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
