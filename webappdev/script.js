@@ -44,6 +44,7 @@ window.fetch = async (...args) => {
         if (response.ok) {
             try {
                 const responseData = await response.clone().json();
+                console.log("PREPARE")
                 console.log('Confirm data:', interceptedRequest);
                 console.log(responseData?.status === "booked");
                 console.log('Booking info response:', responseData);
