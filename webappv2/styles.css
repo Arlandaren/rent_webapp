@@ -38,6 +38,17 @@ html, body {
     width: 130px; 
 }
 
+@media (max-width: 768px) {
+    #arrow {
+        left: auto;
+    }
+}
+@media (max-width: 480px) {
+    #arrow {
+        margin-bottom: 10px;
+    }
+}
+
 .footer {
     background-color: rgba(245, 248, 250, 0.9); /* Полупрозрачный фон */
     text-align: center;
