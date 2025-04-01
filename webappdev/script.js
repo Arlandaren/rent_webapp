@@ -1,21 +1,21 @@
 Telegram.WebApp.ready();
 
-let interceptedRequest = null;  // Переменная для хранения данных из запроса '/confirm'
-
-// Переопределение window.fetch
 const originalFetch = window.fetch;
+
+let interceptedRequest = null; // Глобальная переменная для хранения перехваченного запроса
+
 window.fetch = async (...args) => {
     const url = args[0];
 
-    // Логируем URL запроса
+    // Логирование URL, который запрашивается
     console.log('Fetching URL:', url);
 
-    // Убеждаемся, что args[1] является объектом
+    // Убедимся, что args[1] — это объект
     const init = args[1] || {};
 
-    // Перехватываем запросы к '/confirm'
+    // Перехват запросов к '/confirm'
     if (url.includes('/confirm')) {
-        console.log('Перехвачен fetch-запрос к /confirm');
+        console.log('Перехвачен запрос к /confirm');
 
         // Извлекаем тело запроса
         const requestPayload = init.body;
@@ -28,29 +28,39 @@ window.fetch = async (...args) => {
                 console.error('Ошибка при чтении тела запроса:', error);
             }
         } else {
-            console.warn('Тело запроса в /confirm не найдено (fetch)');
+            console.warn('Тело запроса отсутствует в запросе к /confirm');
         }
 
         // Извлекаем информацию о цене из элемента
-        const priceElement = document.querySelector('#hr-modal .price-block__right');
+        const priceElement = document.querySelector('#hr-modal > div.hr-modal > div > div.basket-page__container > div.basket-page__content > div.form-container > div.form > div.form__price-block.price-block > div:nth-child(2) > div.price-block__right');
         const priceInfo = priceElement ? priceElement.innerText : 'Информация не найдена';
         console.log('Price info:', priceInfo);
 
-        // Сохраняем детали перехваченного запроса
-        interceptedRequest = {
-            url,
-            method: init.method || 'GET',
-            headers: init.headers,
-            payload: payloadData,
-            priceInfo: priceInfo,
-        };
+        // Продолжаем выполнение оригинального запроса
+        const response = await originalFetch(...args);
 
-        console.log('Сохранен interceptedRequest из fetch:', interceptedRequest);
+        if (response.ok) {
+            // Сохраняем детали перехваченного запроса в глобальную переменную
+            interceptedRequest = {
+                url,
+                method: init.method || 'GET',
+                headers: init.headers,
+                payload: payloadData,
+                priceInfo: priceInfo,
+            };
+
+            console.log('Сохранен interceptedRequest:', interceptedRequest);
+        } else {
+            // Если ответ не OK, записываем предупреждение
+            console.warn('Ответ не OK:', response.status);
+        }
+
+        return response;
     }
 
-    // Перехватываем запросы к '/booking/.../info'
+    // Перехват запросов к '/booking/.../info'
     if (url.includes('/booking/') && url.endsWith('/info')) {
-        console.log('Перехвачен fetch-запрос к /booking/.../info');
+        console.log('Перехвачен запрос к /booking/.../info');
 
         // Продолжаем выполнение оригинального запроса
         const response = await originalFetch(...args);
@@ -58,7 +68,7 @@ window.fetch = async (...args) => {
         if (response.ok) {
             let responseData = null;
             try {
-                // Клонируем ответ, чтобы прочитать его без влияния на оригинальный ответ
+                // Клонируем ответ, чтобы прочитать его тело без влияния на оригинальный ответ
                 responseData = await response.clone().json();
                 console.log('Response data:', responseData);
             } catch (error) {
@@ -86,7 +96,7 @@ window.fetch = async (...args) => {
 
             return response;
         } else {
-            // Если статус ответа не OK, отправляем сообщение об ошибке в Telegram
+            // Если ответ не OK, отправляем сообщение об ошибке в Telegram
             console.warn('Ответ не OK:', response.status);
             try {
                 Telegram.WebApp.sendData(JSON.stringify({ status: "error", statusCode: response.status }));
@@ -100,102 +110,3 @@ window.fetch = async (...args) => {
     // Для всех остальных запросов используем оригинальный fetch
     return originalFetch(...args);
 };
-
-// Переопределение XMLHttpRequest
-(function() {
-    const originalXHROpen = XMLHttpRequest.prototype.open;
-    const originalXHRSend = XMLHttpRequest.prototype.send;
-    const originalXHRSetRequestHeader = XMLHttpRequest.prototype.setRequestHeader;
-
-    XMLHttpRequest.prototype.open = function(method, url, async, user, password) {
-        this._method = method;
-        this._url = url;
-        this._headers = {};
-        return originalXHROpen.apply(this, arguments);
-    };
-
-    XMLHttpRequest.prototype.setRequestHeader = function(header, value) {
-        this._headers[header] = value;
-        return originalXHRSetRequestHeader.apply(this, arguments);
-    };
-
-    XMLHttpRequest.prototype.send = function(body) {
-        if (this._url.includes('/confirm')) {
-            console.log('Перехвачен XMLHttpRequest к /confirm');
-
-            // Извлекаем тело запроса
-            const requestPayload = body;
-            let payloadData = null;
-            if (requestPayload) {
-                try {
-                    payloadData = typeof requestPayload === 'string' ? requestPayload : JSON.stringify(requestPayload);
-                    console.log('Request payload:', payloadData);
-                } catch (error) {
-                    console.error('Ошибка при чтении тела запроса:', error);
-                }
-            } else {
-                console.warn('Тело запроса в /confirm не найдено (XMLHttpRequest)');
-            }
-
-            // Извлекаем информацию о цене из элемента
-            const priceElement = document.querySelector('#hr-modal .price-block__right');
-            const priceInfo = priceElement ? priceElement.innerText : 'Информация не найдена';
-            console.log('Price info:', priceInfo);
-
-            // Сохраняем детали перехваченного запроса
-            interceptedRequest = {
-                url: this._url,
-                method: this._method,
-                headers: this._headers,
-                payload: payloadData,
-                priceInfo: priceInfo,
-            };
-
-            console.log('Сохранен interceptedRequest из XMLHttpRequest:', interceptedRequest);
-        }
-
-        // Добавляем обработчик события, чтобы перехватить ответ
-        this.addEventListener('readystatechange', function() {
-            if (this.readyState === 4 && this.status === 200 && this._url.includes('/booking/') && this._url.endsWith('/info')) {
-                console.log('Перехвачен ответ XMLHttpRequest к /booking/.../info');
-
-                let responseData = null;
-                try {
-                    responseData = JSON.parse(this.responseText);
-                    console.log('Response data:', responseData);
-                } catch (error) {
-                    console.error('Ошибка при разборе JSON ответа:', error);
-                }
-
-                // Проверяем, содержит ли ответ статус "booked"
-                if (responseData && responseData.status === "booked") {
-                    console.log('Статус ответа "booked"');
-
-                    // Отправляем сохраненный interceptedRequest в Telegram
-                    if (interceptedRequest) {
-                        try {
-                            console.log('Отправляем interceptedRequest в Telegram:', interceptedRequest);
-                            Telegram.WebApp.sendData(JSON.stringify(interceptedRequest));
-                        } catch (error) {
-                            console.error('Ошибка при отправке данных в Telegram:', error);
-                        }
-                    } else {
-                        console.warn('Нет данных interceptedRequest для отправки.');
-                    }
-                } else {
-                    console.log('Статус ответа не "booked"');
-                }
-            } else if (this.readyState === 4 && this.status !== 200) {
-                // Если статус ответа не OK, отправляем сообщение об ошибке в Telegram
-                console.warn('Ответ не OK:', this.status);
-                try {
-                    Telegram.WebApp.sendData(JSON.stringify({ status: "error", statusCode: this.status }));
-                } catch (error) {
-                    console.error('Ошибка при отправке статуса ошибки в Telegram:', error);
-                }
-            }
-        });
-
-        return originalXHRSend.apply(this, arguments);
-    };
-})();
