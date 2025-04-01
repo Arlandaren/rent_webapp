@@ -45,7 +45,12 @@ window.fetch = async (...args) => {
             try {
                 const responseData = await response.clone().json();
                 console.log('Booking info response:', responseData);
-                
+                if (!interceptedRequest) {
+                    console.warn('[Interceptor] No confirm data available');
+                    return response;
+                }
+                console.log('Confirm data:', interceptedRequest);
+                console.log(responseData?.status === "booked");
                 if (responseData?.status === "booked" && interceptedRequest) {
                     console.log('Status is booked, sending data to Telegram');
                     try {
