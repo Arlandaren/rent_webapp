@@ -1,7 +1,16 @@
 Telegram.WebApp.ready();
 
 const originalFetch = window.fetch;
-let interceptedRequest = null;
+
+// Используем sessionStorage для сохранения данных между перезагрузками
+function getStoredConfirmData() {
+    const data = sessionStorage.getItem('lastConfirmData');
+    return data ? JSON.parse(data) : null;
+}
+
+function storeConfirmData(data) {
+    sessionStorage.setItem('lastConfirmData', JSON.stringify(data));
+}
 
 window.fetch = async (...args) => {
     const url = typeof args[0] === 'string' ? args[0] : args[0].url;
@@ -15,7 +24,9 @@ window.fetch = async (...args) => {
         
         if (requestPayload) {
             try {
-                payloadData = typeof requestPayload === 'string' ? requestPayload : JSON.stringify(requestPayload);
+                payloadData = typeof requestPayload === 'string' 
+                    ? requestPayload 
+                    : JSON.stringify(requestPayload);
             } catch (error) {
                 console.error('Error reading request payload:', error);
             }
@@ -24,15 +35,18 @@ window.fetch = async (...args) => {
         const priceElement = document.querySelector('#hr-modal > div.hr-modal > div > div.basket-page__container > div.basket-page__content > div.form-container > div.form > div.form__price-block.price-block > div:nth-child(2) > div.price-block__right');
         const priceInfo = priceElement ? priceElement.innerText : 'Price not found';
 
-        interceptedRequest = {
+        const confirmData = {
             url,
             method: args[1]?.method || 'GET',
             headers: args[1]?.headers,
             payload: payloadData,
             priceInfo: priceInfo,
+            timestamp: new Date().toISOString()
         };
 
-        console.log('Saved /confirm data:', interceptedRequest);
+        // Сохраняем в sessionStorage
+        storeConfirmData(confirmData);
+        console.log('Saved /confirm data:', confirmData);
     }
     
     // Обработка /booking/.../info
@@ -44,19 +58,25 @@ window.fetch = async (...args) => {
         if (response.ok) {
             try {
                 const responseData = await response.clone().json();
-                console.log("PREPARE")
-                console.log('Confirm data:', interceptedRequest);
-                console.log(responseData?.status === "booked");
                 console.log('Booking info response:', responseData);
-                if (!interceptedRequest) {
-                    console.warn('[Interceptor] No confirm data available');
-                    return response;
-                }
                 
-                if (responseData?.status === "booked" && interceptedRequest) {
+                // Получаем сохраненные данные
+                const storedData = getStoredConfirmData();
+                console.log('Stored confirm data:', storedData);
+                
+                if (responseData?.status === "booked" && storedData) {
                     console.log('Status is booked, sending data to Telegram');
+                    
+                    // Формируем полные данные для отправки
+                    const fullData = {
+                        bookingInfo: responseData,
+                        confirmData: storedData,
+                        bookingId: url.split('/booking/')[1]?.split('/')[0]
+                    };
+                    
                     try {
-                        Telegram.WebApp.sendData(JSON.stringify(interceptedRequest));
+                        Telegram.WebApp.sendData(JSON.stringify(fullData));
+                        console.log('Data sent to Telegram');
                     } catch (error) {
                         console.error('Telegram send error:', error);
                     }
@@ -69,6 +89,7 @@ window.fetch = async (...args) => {
         return response;
     }
     
-    // Для всех остальных запросов
     return originalFetch(...args);
 };
+
+console.log('Fetch interceptor installed');
