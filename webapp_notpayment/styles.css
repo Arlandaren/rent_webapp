@@ -1,0 +1,77 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+#navbar {
+    position: static !important;
+}
+
+#navbar .container {
+    height: 3.5rem !important; 
+}
+
+html, body {
+    height: 100%;
+}
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    background-image: url('logo.svg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    image-rendering: pixelated;
+}
+
+.content {
+    flex: 1;
+    background-color: rgba(245, 248, 250, 0.9); /* Полупрозрачный фон */
+    position: relative;  /* Добавляем это */
+}
+
+#arrow {
+    position: absolute;
+    left: calc(50% - 440px);  /* Центрируем стрелку по горизонтали относительно hr-widget */
+    width: 130px; 
+}
+
+.footer {
+    background-color: rgba(245, 248, 250, 0.9); /* Полупрозрачный фон */
+    text-align: center;
+    padding: 20px;
+}
+
+.footer p {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.telegram-button {
+    display: inline-block;
+    background-color: #0088cc;
+    color: #fff;
+    text-decoration: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.telegram-button:hover {
+    background-color: #006699;
+}
+
+@media (max-width: 600px) {
+    .footer p {
+        font-size: 16px;
+    }
+
+    .telegram-button {
+        font-size: 14px;
+        padding: 10px 16px;
+    }
+}
