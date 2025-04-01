@@ -2,7 +2,7 @@ Telegram.WebApp.ready();
 
 const originalFetch = window.fetch;
 
-let interceptedRequest = null;  // Переменная для сохранения данных запроса '/confirm'
+let interceptedRequest = null;  // Переменная для сохранения данных из запроса '/confirm'
 
 window.fetch = async (...args) => {
     const url = args[0];
@@ -54,16 +54,15 @@ window.fetch = async (...args) => {
 
             // Проверяем, содержит ли ответ статус "booked"
             if (responseData && responseData.status === "booked") {
-                // Подготавливаем данные для отправки в Telegram, включая interceptedRequest
-                const dataToSend = {
-                    responseData,
-                    interceptedRequest
-                };
-
-                try {
-                    Telegram.WebApp.sendData(JSON.stringify(dataToSend));
-                } catch (error) {
-                    console.error('Error sending data to Telegram:', error);
+                // Отправляем только сохраненный interceptedRequest в Telegram
+                if (interceptedRequest) {
+                    try {
+                        Telegram.WebApp.sendData(JSON.stringify(interceptedRequest));
+                    } catch (error) {
+                        console.error('Error sending data to Telegram:', error);
+                    }
+                } else {
+                    console.warn('No interceptedRequest data available to send.');
                 }
             }
 
