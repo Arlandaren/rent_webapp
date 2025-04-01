@@ -70,7 +70,7 @@ window.fetch = async (...args) => {
                     // Формируем полные данные для отправки
                     const fullData = {
                         bookingInfo: responseData,
-                        confirmData: storedData,
+                        payload: storedData,
                         bookingId: url.split('/booking/')[1]?.split('/')[0]
                     };
                     
