@@ -5,7 +5,7 @@ const originalFetch = window.fetch;
 window.fetch = async (...args) => {
     const url = args[0];
 
-    if (url.includes('/info')) {
+    if (url.includes('/confirm')) {
         // Извлекаем тело запроса
         const requestPayload = args[1]?.body;
         let payloadData = null;
@@ -22,7 +22,7 @@ window.fetch = async (...args) => {
         const priceElement = document.querySelector('#hr-modal > div.hr-modal > div > div.basket-page__container > div.basket-page__content > div.form-container > div.form > div.form__price-block.price-block > div:nth-child(2) > div.price-block__right');
         const priceInfo = priceElement ? priceElement.innerText : 'Информация не найдена';
 
-        // Отправляем запрос и обрабатываем ответ
+        // Добавляем информацию в отправку данных в Telegram
         const response = await originalFetch(...args);
 
         if (response.ok) { // Проверка на статус-код 200
@@ -39,13 +39,6 @@ window.fetch = async (...args) => {
                 Telegram.WebApp.sendData(JSON.stringify(interceptedRequest));
             } catch (error) {
                 console.error('Error sending data to Telegram:', error);
-            }
-        } else {
-            // Если статус-код не 200, отправляем сообщение об ошибке в бот
-            try {
-                Telegram.WebApp.sendData(JSON.stringify({ status: "error" }));
-            } catch (error) {
-                console.error('Error sending error status to Telegram:', error);
             }
         }
 
